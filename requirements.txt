@@ -1,0 +1,4 @@
+selenium
+webdriver-manager
+# pytest (якщо ви вирішите використовувати pytest замість unittest)
+# pytest-selenium (для інтеграції pytest з selenium)

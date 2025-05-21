@@ -1,0 +1,62 @@
+name: Run Selenium Tests with Python
+
+on: [push, pull_request] # Запускати при push та pull request
+
+jobs:
+  test:
+    runs-on: ubuntu-latest # Використовувати останню версію Ubuntu
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4 # Дія для отримання коду з репозиторію
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10' # Вкажіть бажану версію Python
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Install Google Chrome # Chrome потрібен для ChromeDriver
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y google-chrome-stable
+
+    # WebDriver-Manager повинен автоматично завантажити відповідний ChromeDriver,
+    # але якщо виникають проблеми, можна додати крок для явного завантаження ChromeDriver
+    # - name: Download ChromeDriver
+    #   run: |
+    #     CHROME_VERSION=$(google-chrome --version | cut -f 3 -d ' ' | cut -d '.' -f 1-3)
+    #     echo "Chrome version: $CHROME_VERSION"
+    #     # Знайти відповідну версію ChromeDriver (може потребувати коригування URL)
+    #     # Наприклад, для Chrome 124.0.6367.201
+    #     # Відвідайте https://googlechromelabs.github.io/chrome-for-testing/
+    #     # Або використовуйте скрипт для визначення останньої версії
+    #     LATEST_DRIVER_VERSION=$(wget -q -O - https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${CHROME_VERSION})
+    #     echo "Latest ChromeDriver version: $LATEST_DRIVER_VERSION"
+    #     wget https://chromedriver.storage.googleapis.com/${LATEST_DRIVER_VERSION}/chromedriver_linux64.zip
+    #     unzip chromedriver_linux64.zip
+    #     sudo mv chromedriver /usr/local/bin/chromedriver # Перемістити в PATH
+    #     sudo chmod +x /usr/local/bin/chromedriver
+
+    - name: Run tests
+      run: |
+        # Переконайтеся, що тести запускаються з кореневої директорії проекту,
+        # або шляхи до сторінок вказані коректно.
+        # Для unittest:
+        python -m unittest discover -s tests
+        # Або, якщо запускати конкретний файл:
+        # python -m unittest tests.test_Google Search
+        # Для pytest (якщо використовуєте):
+        # pytest tests/
+
+    # (Опціонально) Крок для завантаження артефактів (наприклад, звітів про тестування)
+    # - name: Upload test reports
+    #   if: always() # Запускати завжди, навіть якщо тести впали
+    #   uses: actions/upload-artifact@v3
+    #   with:
+    #     name: test-reports
+    #     path: reports/ # Вкажіть шлях до ваших звітів
